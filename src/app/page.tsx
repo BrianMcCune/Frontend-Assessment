@@ -1,4 +1,5 @@
 "use client";
+import moment from "moment";
 import { Stack, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -52,6 +53,24 @@ export default function Home() {
     fetchData()
   }, [])
 
+  const handleCheckIn = (id: number) => {
+    setData(prev => prev.map((op) => ({
+      ...op,
+      operators: op.operators.map((operator) => (
+        operator.id === id ? {...operator, checkIn: moment().format("MMM D, YYYY h:mm A")} : operator
+      ))
+    })))
+  }
+
+  const handleCheckOut = (id: number) => {
+    setData(prev => prev.map((op) => ({
+      ...op,
+      operators: op.operators.map((operator) => (
+        operator.id === id ? {...operator, checkOut: moment().format("MMM D, YYYY h:mm A")} : operator
+      ))
+    })))
+  }
+
   return (
     <Stack
       sx={{
@@ -68,7 +87,7 @@ export default function Home() {
           <div>{op.opTitle}</div>
           <div>{op.publicId}</div>
           <div>{op.operatorsNeeded}</div>
-          <div>{op.startTime} - {op.endTime}</div>
+          <div>{moment(op.startTime).format("MMM D, YYYY h:mm A")} - {moment(op.endTime).format("MMM D, YYYY h:mm A")}</div>
           <Table>
             <TableHead>
               <TableRow>
@@ -87,8 +106,8 @@ export default function Home() {
                   <TableCell>{operator.opsCompleted}</TableCell>
                   <TableCell>{operator.reliability * 100}%</TableCell>
                   <TableCell>{operator.endorsements.join(", ")}</TableCell>
-                  <TableCell>{operator.checkIn}</TableCell>
-                  <TableCell>{operator.checkOut}</TableCell>
+                  <TableCell>{operator.checkIn} <input disabled={!!operator.checkIn} onChange={() => handleCheckIn(operator.id)} type="checkbox"></input></TableCell>
+                  <TableCell>{operator.checkOut} <input disabled={!!operator.checkOut} onChange={() => handleCheckOut(operator.id)} type="checkbox"></input></TableCell>
                 </TableRow>
                 
               ))}
