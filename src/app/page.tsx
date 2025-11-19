@@ -81,13 +81,17 @@ export default function Home() {
       }}
     >
 
-    <TableContainer>
+    <TableContainer
+      sx={{
+        width: "80%"
+      }}
+    >
       {data.map((op) => (
-        <div key={op.publicId}>
-          <div>{op.opTitle}</div>
-          <div>{op.publicId}</div>
-          <div>{op.operatorsNeeded}</div>
-          <div>{moment(op.startTime).format("MMM D, YYYY h:mm A")} - {moment(op.endTime).format("MMM D, YYYY h:mm A")}</div>
+        <div key={op.publicId} style={{ marginBottom: '2rem', fontWeight: 'bold'}}>
+          <div>Title: {op.opTitle}</div>
+          <div>ID: {op.publicId}</div>
+          <div>Operators Needed: {op.operatorsNeeded}</div>
+          <div>Timeframe: {moment(op.startTime).format("MMM D, YYYY h:mm A")} - {moment(op.endTime).format("MMM D, YYYY h:mm A")}</div>
           <Table>
             <TableHead>
               <TableRow>
@@ -106,8 +110,8 @@ export default function Home() {
                   <TableCell>{operator.opsCompleted}</TableCell>
                   <TableCell>{operator.reliability * 100}%</TableCell>
                   <TableCell>{operator.endorsements.join(", ")}</TableCell>
-                  <TableCell>{operator.checkIn} <input disabled={!!operator.checkIn} onChange={() => handleCheckIn(operator.id)} type="checkbox"></input></TableCell>
-                  <TableCell>{operator.checkOut} <input disabled={!!operator.checkOut} onChange={() => handleCheckOut(operator.id)} type="checkbox"></input></TableCell>
+                  <TableCell sx={{ minWidth: 200 }}>{operator.checkIn} <input disabled={!!operator.checkIn} onChange={() => handleCheckIn(operator.id)} type="checkbox" /></TableCell>
+                  <TableCell sx={{ minWidth: 200 }}>{operator.checkOut} <input disabled={!operator.checkIn || !!operator.checkOut} onChange={() => handleCheckOut(operator.id)} type="checkbox" /></TableCell>
                 </TableRow>
                 
               ))}
