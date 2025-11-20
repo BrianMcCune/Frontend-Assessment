@@ -1,7 +1,7 @@
 "use client";
 import moment from "moment";
 import { Stack, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type Operator = {
   firstName: string,
@@ -26,6 +26,32 @@ type Op = {
 export default function Home() {
 
   const [data, setData] = useState<Op[]>([])
+  const [search, setSearch] = useState<string>('')
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value)
+  }
+
+  const filteredData = data
+    .map((op) => {
+      const opMatches =
+        op.opTitle.toLowerCase().includes(search.toLowerCase()) ||
+        op.publicId.toLowerCase().includes(search.toLowerCase())
+
+      const filteredOperators = op.operators.filter((operator) =>
+        `${operator.firstName} ${operator.lastName}`.toLowerCase().includes(search.toLowerCase())
+      )
+
+      if (opMatches || filteredOperators.length > 0) {
+        return {
+          ...op,
+          operators: filteredOperators.length > 0 ? filteredOperators : op.operators,
+        };
+      }
+
+      return null
+    })
+    .filter((op): op is Op => Boolean(op))
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,46 +106,45 @@ export default function Home() {
         alignItems: "center",
       }}
     >
-
-    <TableContainer
-      sx={{
-        width: "80%"
-      }}
-    >
-      {data.map((op) => (
-        <div key={op.publicId} style={{ marginBottom: '2rem', fontWeight: 'bold'}}>
-          <div>Title: {op.opTitle}</div>
-          <div>ID: {op.publicId}</div>
-          <div>Operators Needed: {op.operatorsNeeded}</div>
-          <div>Timeframe: {moment(op.startTime).format("MMM D, YYYY h:mm A")} - {moment(op.endTime).format("MMM D, YYYY h:mm A")}</div>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name (First and Last)</TableCell>
-                <TableCell>Ops Completed</TableCell>
-                <TableCell>Reliability</TableCell>
-                <TableCell>Endorsements</TableCell>
-                <TableCell>Check In</TableCell>
-                <TableCell>Check Out</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {op.operators.map((operator) => (
-                <TableRow key={operator.id}>
-                  <TableCell>{operator.firstName} {operator.lastName}</TableCell>
-                  <TableCell>{operator.opsCompleted}</TableCell>
-                  <TableCell>{operator.reliability * 100}%</TableCell>
-                  <TableCell>{operator.endorsements.join(", ")}</TableCell>
-                  <TableCell sx={{ minWidth: 200 }}>{operator.checkIn} <input disabled={!!operator.checkIn} onChange={() => handleCheckIn(operator.id)} type="checkbox" /></TableCell>
-                  <TableCell sx={{ minWidth: 200 }}>{operator.checkOut} <input disabled={!operator.checkIn || !!operator.checkOut} onChange={() => handleCheckOut(operator.id)} type="checkbox" /></TableCell>
+      <input type="text" value={search} onChange={handleSearch} style={{ position: 'absolute', top: '3vh'}}/>
+      <TableContainer
+        sx={{
+          width: "80%"
+        }}
+      >
+        {filteredData.map((op) => (
+          <div key={op.publicId} style={{ marginBottom: '2rem', fontWeight: 'bold', minHeight: 400 }}>
+            <div>Title: {op.opTitle}</div>
+            <div>ID: {op.publicId}</div>
+            <div>Operators Needed: {op.operatorsNeeded}</div>
+            <div>Timeframe: {moment(op.startTime).format("MMM D, YYYY h:mm A")} - {moment(op.endTime).format("MMM D, YYYY h:mm A")}</div>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name (First and Last)</TableCell>
+                  <TableCell>Ops Completed</TableCell>
+                  <TableCell>Reliability</TableCell>
+                  <TableCell>Endorsements</TableCell>
+                  <TableCell>Check In</TableCell>
+                  <TableCell>Check Out</TableCell>
                 </TableRow>
-                
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ))}
-    </TableContainer>
+              </TableHead>
+              <TableBody>
+                {op.operators.map((operator) => (
+                  <TableRow key={operator.id}>
+                    <TableCell>{operator.firstName} {operator.lastName}</TableCell>
+                    <TableCell>{operator.opsCompleted}</TableCell>
+                    <TableCell>{operator.reliability * 100}%</TableCell>
+                    <TableCell>{operator.endorsements.join(", ")}</TableCell>
+                    <TableCell sx={{ minWidth: 200 }}>{operator.checkIn} <input disabled={!!operator.checkIn} onChange={() => handleCheckIn(operator.id)} type="checkbox" /></TableCell>
+                    <TableCell sx={{ minWidth: 200 }}>{operator.checkOut} <input disabled={!operator.checkIn || !!operator.checkOut} onChange={() => handleCheckOut(operator.id)} type="checkbox" /></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ))}
+      </TableContainer>
     </Stack>
   );
 }
