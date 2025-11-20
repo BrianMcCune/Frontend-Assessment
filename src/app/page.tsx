@@ -1,6 +1,6 @@
 "use client";
 import moment from "moment";
-import { Stack, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import { Stack, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TableSortLabel } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 type Operator = {
@@ -51,7 +51,34 @@ export default function Home() {
 
       return null
     })
-    .filter((op): op is Op => Boolean(op))
+  .filter((op): op is Op => Boolean(op))
+
+  const handleSortName = () => {
+    setData((prev) => 
+      prev.map((op) => ({
+        ...op,
+        operators: [...op.operators].sort((a, b) => a.firstName.localeCompare(b.firstName))
+      }))
+    )
+  }
+
+  const handleSortOps = () => {
+    setData((prev) => 
+      prev.map((op) => ({
+        ...op,
+        operators: [...op.operators].sort((a, b) => a.opsCompleted - b.opsCompleted)
+      }))
+    )
+  }
+
+  const handleSortReliability = () => {
+    setData((prev) => 
+      prev.map((op) => ({
+        ...op,
+        operators: [...op.operators].sort((a, b) => a.reliability - b.reliability)
+      }))
+    )
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -121,9 +148,9 @@ export default function Home() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name (First and Last)</TableCell>
-                  <TableCell>Ops Completed</TableCell>
-                  <TableCell>Reliability</TableCell>
+                  <TableCell><TableSortLabel onClick={handleSortName}>Name (First and Last)</TableSortLabel></TableCell>
+                  <TableCell><TableSortLabel onClick={handleSortOps}>Ops Completed</TableSortLabel></TableCell>
+                  <TableCell><TableSortLabel onClick={handleSortReliability}>Reliability</TableSortLabel></TableCell>
                   <TableCell>Endorsements</TableCell>
                   <TableCell>Check In</TableCell>
                   <TableCell>Check Out</TableCell>
